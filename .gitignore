@@ -1,0 +1,5 @@
+bin/*.o
+bin/main
+objects/*.mod
+textures/*.ppm
+dist
