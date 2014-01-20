@@ -36,7 +36,7 @@
 #define NUM_OBJECTS 1
 object * object_list[NUM_OBJECTS] = {
 	&(object) {
-		.filename = "object.mod",
+		.filename = "object.obj",
 		.texture_file = "crate.ppm",
 		.vert_shader = "object.vert.glsl",
 		.frag_shader = "object.frag.glsl",

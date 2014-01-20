@@ -8,8 +8,6 @@ all: main
 clean:
 	rm *.o main
 
-main: common.o glsl.o matrix.o object.o opengl.o shader.o texture.o
-
-shader.o: common.o
+main: $(SRC:.c=.o)
 
 .PHONY: all clean

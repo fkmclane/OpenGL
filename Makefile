@@ -1,6 +1,6 @@
 include config.mk
 
-DIRS=bin objects textures
+DIRS=bin textures
 
 all:
 	@for dir in $(DIRS); do \
@@ -15,7 +15,7 @@ dist: all
 	mkdir -p $(DISTDIR)
 	cp bin/main $(DISTDIR)/$(PROJECT)
 	cp glsl/*.glsl $(DISTDIR)/
-	cp objects/*.mod $(DISTDIR)/
+	cp objects/*.obj $(DISTDIR)/
 	cp textures/*.ppm $(DISTDIR)/
 
 release: dist clean
