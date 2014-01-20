@@ -1,14 +1,14 @@
 include ../config.mk
 
-VPATH=../src
-DISTDIR=../dist
+VPATH=../$(SRCDIR)
+DISTDIR=../$(DISTDIR)
 
 all: main
 
 clean:
 	rm *.o main
 
-main: common.o glsl.o matrix.o object.o shader.o texture.o
+main: common.o glsl.o matrix.o object.o opengl.o shader.o texture.o
 
 shader.o: common.o
 

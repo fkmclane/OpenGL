@@ -9,8 +9,6 @@
 #include <GL/glext.h>
 #endif
 
-#define PI 3.1415926535898
-
 void createIdentity(GLfloat * matrix);
 void createPerspectiveMatrix(GLfloat * matrix, float fovy, float aspect, float near, float far);
 void cameraMatrix(GLfloat * matrix, float cam_x, float cam_y, float cam_z, float center_x, float center_y, float center_z, float cam_roll);

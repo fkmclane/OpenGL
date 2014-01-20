@@ -9,6 +9,8 @@
 #include <GL/glext.h>
 #endif
 
+#define PI 3.1415926535898
+
 char * fileContents(const char * filename);
 void printLog(GLuint object);
 
