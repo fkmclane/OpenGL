@@ -37,7 +37,7 @@
 object * object_list[NUM_OBJECTS] = {
 	&(object) {
 		.filename = "object.mod",
-		.texture_file = "texture.ppm",
+		.texture_file = "crate.ppm",
 		.vert_shader = "object.vert.glsl",
 		.frag_shader = "object.frag.glsl",
 		.x_rotation_speed = PI / 4,
