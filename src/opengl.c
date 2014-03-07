@@ -17,7 +17,7 @@ int initGL(float fov_v, float near_v, float far_v, float width, float height, fl
 	far = far_v;
 	resizeGL(width, height);
 
-	//Create init objects and create world matrix
+	//Init objects and create world matrix
 	x = cam_x;
 	y = cam_y;
 	z = cam_z;
