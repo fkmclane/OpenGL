@@ -56,6 +56,6 @@ void printLog(GLuint object) { //Print logs of shaders or programs
 		return;
 	}
 
-	fprintf(stderr, "%s", log);
+	fprintf(stderr, "%s\n", log);
 	free(log);
 }

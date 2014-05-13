@@ -31,7 +31,7 @@
 #define CAM_ROLL 0.0
 
 #define STEP 0.1
-#define ROTATE_STEP PI / 48
+#define ROTATE_STEP PI / 128
 
 #define NUM_OBJECTS 1
 object * object_list[NUM_OBJECTS] = {
@@ -89,7 +89,7 @@ int main(int argc, char * argv[]) {
 
 #endif
 	if(initGL(FOV, NEAR, FAR, WIDTH, HEIGHT, CAM_X, CAM_Y, CAM_Z, CENTER_X, CENTER_Y, CENTER_Z, CAM_ROLL, object_list, NUM_OBJECTS)) { //Initialize world
-		fprintf(stderr, "Error setting up OpenGL world");
+		fprintf(stderr, "Error setting up OpenGL world\n");
 		glfwTerminate();
 		return 1;
 	}
