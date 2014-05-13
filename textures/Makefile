@@ -6,6 +6,6 @@ all:
 	done
 
 clean:
-	rm *.ppm
+	rm -f *.ppm
 
 .PHONY: all clean

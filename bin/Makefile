@@ -6,7 +6,7 @@ DISTDIR=../$(DISTDIR)
 all: main
 
 clean:
-	rm *.o main
+	rm -f *.o main
 
 main: $(SRC:.c=.o)
 
