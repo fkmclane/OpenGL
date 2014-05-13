@@ -1,7 +1,5 @@
 include config.mk
 
-DIRS=bin textures
-
 all:
 	@for dir in $(DIRS); do \
 		$(MAKE) -C $$dir; \
@@ -14,9 +12,7 @@ clean:
 dist: all
 	mkdir -p $(DISTDIR)
 	cp bin/main $(DISTDIR)/$(PROJECT)
-	cp glsl/*.glsl $(DISTDIR)/
-	cp objects/*.obj $(DISTDIR)/
-	cp textures/*.ppm $(DISTDIR)/
+	cp $(DIST) $(DISTDIR)/
 
 release: dist clean
 
