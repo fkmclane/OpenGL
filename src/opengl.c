@@ -17,21 +17,24 @@ int initGL(float fov_v, float near_v, float far_v, float width, float height, fl
 	far = far_v;
 	resizeGL(width, height);
 
-	//Init objects and create world matrix
-	x = cam_x;
-	y = cam_y;
-	z = cam_z;
-	rot_x = atan2(y - center_y, z - center_z);
-	rot_y = -atan2(x - center_x, z - center_z);
-	rot_z = cam_roll;
+	//Prepare world variables
+	x = y = z = rot_x = rot_y = rot_z = 0;
 
+	//Create world matrix
+	createIdentity(world_matrix);
+	translateGL(cam_x, cam_y, cam_z);
+	rotateGL(atan2(y - center_y, z - center_z), -atan2(x - center_x, z - center_z), cam_roll);
+
+	//Init objects
 	if(!initObjects(init_objects, init_num_objects)) {
 		fprintf(stderr, "Error initializing objects\n");
 		destroyObjects();
 		return 1;
 	}
 
-	updateGL(0);
+	//Run everything once to initialize it
+	animateGL(0);
+	updateGL();
 
 	return 0;
 }
@@ -68,17 +71,9 @@ void animateGL(float secs) {
 	}
 }
 
-void updateGL(float secs) {
+void updateGL() {
 	//Put objects in buffer
 	displayObjects();
-	animateGL(secs);
-
-	//Create a new camera matrix
-	createIdentity(world_matrix);
-	xRotateMatrix(world_matrix, rot_x);
-	yRotateMatrix(world_matrix, rot_y);
-	zRotateMatrix(world_matrix, rot_z);
-	translateMatrix(world_matrix, -x, -y, -z);
 
 	//Apply camera matrix
 	for(int i = 0; i < num_objects; i++)
@@ -86,12 +81,18 @@ void updateGL(float secs) {
 }
 
 void translateGL(float dx, float dy, float dz) {
+	translateMatrix(world_matrix, -dx, -dy, -dz);
+
 	x += dx;
 	y += dy;
 	z += dz;
 }
 
 void rotateGL(float drot_x, float drot_y, float drot_z) {
+	translateMatrix(world_matrix, x, y, z);
+	rotateMatrix(world_matrix, drot_x, drot_y, drot_z);
+	translateMatrix(world_matrix, -x, -y, -z);
+
 	rot_x += drot_x;
 	rot_y += drot_y;
 	rot_z += drot_z;

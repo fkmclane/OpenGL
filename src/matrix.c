@@ -65,6 +65,12 @@ void zRotateMatrix(GLfloat * matrix, float angle) {
 	}
 }
 
+void rotateMatrix(GLfloat * matrix, float angle_x, float angle_y, float angle_z) {
+	xRotateMatrix(matrix, angle_x);
+	yRotateMatrix(matrix, angle_y);
+	zRotateMatrix(matrix, angle_z);
+}
+
 void multiplyMatrices(GLfloat * matrix, GLfloat * factor) {
 	for(int i = 0; i < 4; i++) { //Go through each row
 		GLfloat value[4] = {0, 0, 0, 0};

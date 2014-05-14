@@ -21,7 +21,7 @@ int initGL(float fov, float near, float far, float width, float height, float ca
 void deinitGL();
 void resizeGL(int width, int height);
 void animateGL(float secs);
-void updateGL(float secs);
+void updateGL();
 void translateGL(float dx, float dy, float dz);
 void rotateGL(float drot_x, float drot_y, float drot_z);
 

@@ -126,13 +126,14 @@ int main(int argc, char * argv[]) {
 
 		rotateGL(rot_x, rot_y, rot_z);
 
-		updateGL(glfwGetTime());
+		animateGL(glfwGetTime());
+		updateGL();
 
 		glfwSwapBuffers(window); //Display the buffer
 		glfwPollEvents(); //And check events
 	}
 
-	deinitGL();
+	deinitGL(); //Free up OpenGL resources
 	glfwTerminate(); //Need to tell GLFW to stop
 	return 0;
 }

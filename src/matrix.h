@@ -16,6 +16,7 @@ void translateMatrix(GLfloat * matrix, float x, float y, float z);
 void xRotateMatrix(GLfloat * matrix, float angle);
 void yRotateMatrix(GLfloat * matrix, float angle);
 void zRotateMatrix(GLfloat * matrix, float angle);
+void rotateMatrix(GLfloat * matrix, float angle_x, float angle_y, float angle_z);
 void multiplyMatrices(GLfloat * matrix, GLfloat * factor);
 void printMatrix(GLfloat * matrix);
 
