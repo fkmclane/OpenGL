@@ -113,7 +113,8 @@ int main(int argc, char * argv[]) {
 		if(glfwGetKey(window, 'D')) //Move right
 			x += STEP;
 
-		translateGL(x, y, z);
+		if(x != 0 || y != 0 || z != 0)
+			translateGL(x, y, z);
 
 		if(glfwGetKey(window, GLFW_KEY_LEFT)) //Turn left
 			rot_y -= ROTATE_STEP;
@@ -124,7 +125,8 @@ int main(int argc, char * argv[]) {
 		if(glfwGetKey(window, GLFW_KEY_DOWN)) //Turn down
 			rot_x += ROTATE_STEP;
 
-		rotateGL(rot_x, rot_y, rot_z);
+		if(rot_x != 0 || rot_y != 0 || rot_z != 0)
+			rotateGL(rot_x, rot_y, rot_z);
 
 		animateGL(glfwGetTime());
 		updateGL();
