@@ -42,8 +42,8 @@ object * object_list[NUM_OBJECTS] = {
 		.frag_shader = "object.frag.glsl",
 		.x_rotation_speed = PI / 4,
 		.y_rotation_speed = PI / 4,
-		.z_rotation_speed = PI / 4
-	}
+		.z_rotation_speed = PI / 4,
+	},
 };
 
 long lastsecs = 0;

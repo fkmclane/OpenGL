@@ -89,6 +89,7 @@ void translateGL(float dx, float dy, float dz) {
 }
 
 void rotateGL(float drot_x, float drot_y, float drot_z) {
+	//Undo current translation to rotate world about camera
 	translateMatrix(world_matrix, x, y, z);
 	rotateMatrix(world_matrix, drot_x, drot_y, drot_z);
 	translateMatrix(world_matrix, -x, -y, -z);
