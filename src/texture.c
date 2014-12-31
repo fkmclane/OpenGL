@@ -11,6 +11,7 @@ GLuint loadTexture(const char * filename) {
 		return 0;
 	}
 
+	//Get width and height
 	GLsizei texture_width, texture_height;
 	int texture_maxval;
 	int output = fscanf(file, "P6\n%d %d\n%d\n", &texture_width, &texture_height, &texture_maxval);
@@ -19,10 +20,14 @@ GLuint loadTexture(const char * filename) {
 		fclose(file);
 		return 0;
 	}
+
+	//Get texture size
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
 	size_t size = ftell(file) - pos;
 	fseek(file, pos, SEEK_SET);
+
+	//Allocate texture
 	GLvoid * texture_data = malloc(size);
 	if(!texture_data) {
 		fprintf(stderr, "Couldn't load texture (%s): Memory error: ", filename);
@@ -30,21 +35,28 @@ GLuint loadTexture(const char * filename) {
 		fclose(file);
 		return 0;
 	}
-	size_t size_read = fread((void *)texture_data, 1, size, file);
+
+	//Read texture
+	size_t size_read = fread(texture_data, 1, size, file);
 	if(size_read != size) {
 		fprintf(stderr, "Couldn't load texture (%s): Read error: ", filename);
 		perror("");
 		fclose(file);
-		free((void *)texture_data);
+		free(texture_data);
 		return 0;
 	}
+
 	fclose(file);
 
+	//Generate texture
 	GLuint texture;
 	glGenTextures(1, &texture);
+
+	//Fill texture
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_width, texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data); //(Target, Level, InternalFormat, Width, Height, Border, Format, Type, Data)
+
 	free(texture_data);
 
 	return texture;

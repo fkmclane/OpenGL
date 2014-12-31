@@ -16,8 +16,9 @@ GLfloat world_matrix[16];
 
 float x, y, z, rot_x, rot_y, rot_z;
 float fov, width, height, near, far;
+object_list * objects;
 
-int initGL(float fov, float near, float far, float width, float height, float cam_x, float cam_y, float cam_z, float center_x, float center_y, float center_z, float cam_roll, object * objects[], int num_objects);
+int initGL(float fov, float near, float far, float width, float height, float cam_x, float cam_y, float cam_z, float center_x, float center_y, float center_z, float cam_roll, object_list * objects);
 void deinitGL();
 void resizeGL(int width, int height);
 void animateGL(float secs);

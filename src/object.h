@@ -19,7 +19,7 @@ typedef struct {
 } buffer;
 
 typedef struct {
-	const char * filename, * texture_file, * vert_shader, * frag_shader; //Files
+	const char * filename, * texture_filename, * vert_shader, * frag_shader; //Files
 	float x_rotation_speed, y_rotation_speed, z_rotation_speed;
 	GLuint program; //Shader program
 	buffer buffers; //Vertex Buffer and Index Buffer Objects
@@ -28,14 +28,17 @@ typedef struct {
 	GLint uniform_obj_transform, uniform_world_transform, uniform_perspective, uniform_texture; //Uniforms
 } object;
 
-object ** objects;
-int num_objects;
+typedef struct {
+	object ** list;
+	int num;
+} object_list;
 
-int initObjects(object * init_objects[], int init_num_objects);
+int initObjects(object_list * objects);
 int initObject(object * current_object);
 buffer loadObject(const char * filename);
-void displayObjects();
+void displayObjects(object_list * objects);
 void displayObject(object * current_object);
-void destroyObjects();
+void destroyObjects(object_list * objects);
+void destroyObject(object * current_object);
 
 #endif

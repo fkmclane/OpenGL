@@ -33,17 +33,19 @@
 #define STEP 0.1
 #define ROTATE_STEP PI / 128
 
-#define NUM_OBJECTS 1
-object * object_list[NUM_OBJECTS] = {
-	&(object) {
-		.filename = "object.obj",
-		.texture_file = "crate.ppm",
-		.vert_shader = "object.vert.glsl",
-		.frag_shader = "object.frag.glsl",
-		.x_rotation_speed = PI / 4,
-		.y_rotation_speed = PI / 4,
-		.z_rotation_speed = PI / 4,
+object_list * OBJECTS = & (object_list) {
+	.list = & (object *) {
+		& (object) {
+			.filename = "object.obj",
+			.texture_filename = "crate.ppm",
+			.vert_shader = "object.vert.glsl",
+			.frag_shader = "object.frag.glsl",
+			.x_rotation_speed = PI / 4,
+			.y_rotation_speed = PI / 4,
+			.z_rotation_speed = PI / 4,
+		},
 	},
+	.num = sizeof(OBJECTS->list) / sizeof(object *),
 };
 
 long lastsecs = 0;
@@ -52,7 +54,7 @@ void printFPS() {
 	framecount++; //Increment frame
 	float secs = glfwGetTime(); //Get current running time
 	float time = secs - lastsecs; //Subtract it from the last time and convert to seconds
-	if(time > 1) {
+	if(time >= 1) {
 		fprintf(stderr, "FPS: %3.2f          \r", framecount / time); //Calculate frames / second
 		lastsecs = secs; //Reset everything
 		framecount = 0;
@@ -70,13 +72,15 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
+	//Initialize window
 	GLFWwindow * window = glfwCreateWindow(WIDTH, HEIGHT, "Object", NULL, NULL);
 	if(!window) {
 		fprintf(stderr, "Error creating GLFW window\n");
 		glfwTerminate();
 		return 1;
 	}
-	glfwSetWindowSizeCallback(window, resize);
+
+	//Initialize context
 	glfwMakeContextCurrent(window);
 
 #ifdef HAVE_LIBGLEW
@@ -88,12 +92,17 @@ int main(int argc, char * argv[]) {
 	}
 
 #endif
-	if(initGL(FOV, NEAR, FAR, WIDTH, HEIGHT, CAM_X, CAM_Y, CAM_Z, CENTER_X, CENTER_Y, CENTER_Z, CAM_ROLL, object_list, NUM_OBJECTS)) { //Initialize world
+	//Initialize world
+	if(initGL(FOV, NEAR, FAR, WIDTH, HEIGHT, CAM_X, CAM_Y, CAM_Z, CENTER_X, CENTER_Y, CENTER_Z, CAM_ROLL, OBJECTS)) {
 		fprintf(stderr, "Error setting up OpenGL world\n");
 		glfwTerminate();
 		return 1;
 	}
 
+	//Add callbacks
+	glfwSetWindowSizeCallback(window, resize);
+
+	//Current action
 	float x, y, z, rot_x, rot_y, rot_z;
 
 	while(!glfwWindowShouldClose(window)) {
