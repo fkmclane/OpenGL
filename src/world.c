@@ -30,7 +30,7 @@ int world_init(float fov_v, float near_v, float far_v, float width, float height
 	world_rotate(atan2(y - center_y, z - center_z), -atan2(x - center_x, z - center_z), cam_roll);
 
 	// initialize scene
-	if(scene_init()) {
+	if (scene_init()) {
 		fprintf(stderr, "Error setting up scene\n");
 		return 1;
 	}
@@ -52,7 +52,7 @@ void world_resize(int width_v, int height_v) {
 
 	// reset view matrix
 	matrix_create_perspective(perspective, fov, width / height, near, far);
-	for(int i = 0; i < objects->num; i++)
+	for (int i = 0; i < objects->num; i++)
 		glUniformMatrix4fv(objects->list[i]->uniform_perspective, 1, GL_FALSE, perspective);
 
 	glViewport(0, 0, width, height);
@@ -69,7 +69,7 @@ void world_update() {
 	scene_update();
 
 	// apply camera matrix
-	for(int i = 0; i < objects->num; i++)
+	for (int i = 0; i < objects->num; i++)
 		glUniformMatrix4fv(objects->list[i]->uniform_world_transform, 1, GL_FALSE, world);
 }
 

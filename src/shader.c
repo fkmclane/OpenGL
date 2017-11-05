@@ -10,13 +10,13 @@ GLuint program_load(const char ** shader_filenames, unsigned int shader_num) {
 	GLuint shaders[shader_num];
 
 	// load and attach shaders
-	for(int i = 0; i < shader_num; i++) {
+	for (int i = 0; i < shader_num; i++) {
 		GLenum type;
 
-		if(strstr(shader_filenames[i], ".vert.glsl") == shader_filenames[i] + strlen(shader_filenames[i]) - strlen(".vert.glsl")) {
+		if (strstr(shader_filenames[i], ".vert.glsl") == shader_filenames[i] + strlen(shader_filenames[i]) - strlen(".vert.glsl")) {
 			type = GL_VERTEX_SHADER;
 		}
-		else if(strstr(shader_filenames[i], ".frag.glsl") == shader_filenames[i] + strlen(shader_filenames[i]) - strlen(".frag.glsl")) {
+		else if (strstr(shader_filenames[i], ".frag.glsl") == shader_filenames[i] + strlen(shader_filenames[i]) - strlen(".frag.glsl")) {
 			type = GL_FRAGMENT_SHADER;
 		}
 		else {
@@ -26,27 +26,27 @@ GLuint program_load(const char ** shader_filenames, unsigned int shader_num) {
 
 		shaders[i] = shader_load(shader_filenames[i], type);
 
-		if(shaders[i] == 0)
+		if (shaders[i] == 0)
 			return 0;
 	}
 
 	// create program
 	GLuint program = glCreateProgram();
 
-	for(int i = 0; i < shader_num; i++)
+	for (int i = 0; i < shader_num; i++)
 		glAttachShader(program, shaders[i]);
 
 	// link program
 	glLinkProgram(program);
 
 	// delete shaders
-	for(int i = 0; i < shader_num; i++)
+	for (int i = 0; i < shader_num; i++)
 		glDeleteShader(shaders[i]);
 
 	// check program
 	GLint ok = GL_FALSE;
 	glGetProgramiv(program, GL_LINK_STATUS, &ok);
-	if(ok == GL_FALSE) {
+	if (ok == GL_FALSE) {
 		fprintf(stderr, "Error linking program: ");
 		log_print(program);
 		return 0;
@@ -58,7 +58,7 @@ GLuint program_load(const char ** shader_filenames, unsigned int shader_num) {
 GLuint shader_load(const char * filename, GLenum type) {
 	// get glsl code
 	GLchar * glsl = file_read(filename); // get file contents
-	if(!glsl) {
+	if (!glsl) {
 		fprintf(stderr, "Error opening %s: ", filename);
 		perror("");
 		return 0;
@@ -76,7 +76,7 @@ GLuint shader_load(const char * filename, GLenum type) {
 	// check shader
 	GLint ok = GL_FALSE;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
-	if(ok == GL_FALSE) {
+	if (ok == GL_FALSE) {
 		fprintf(stderr, "Error compiling shader %s: ", filename);
 		log_print(shader); // print the log if something goes bad
 		glDeleteShader(shader);
@@ -88,7 +88,7 @@ GLuint shader_load(const char * filename, GLenum type) {
 
 GLint attrib_bind(GLuint program, const char * name) {
 	GLint attrib = glGetAttribLocation(program, name);
-	if(attrib < 0)
+	if (attrib < 0)
 		fprintf(stderr, "Couldn't bind uniform %s\n", name);
 
 	return attrib;
@@ -96,7 +96,7 @@ GLint attrib_bind(GLuint program, const char * name) {
 
 GLint uniform_bind(GLuint program, const char * name) {
 	GLint uniform = glGetUniformLocation(program, name);
-	if(uniform < 0)
+	if (uniform < 0)
 		fprintf(stderr, "Couldn't bind uniform %s\n", name);
 
 	return uniform;

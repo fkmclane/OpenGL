@@ -5,7 +5,7 @@
 
 GLuint texture_load(const char * filename) {
 	FILE * file = fopen(filename, "rb");
-	if(!file) {
+	if (!file) {
 		fprintf(stderr, "Error opening %s: ", filename);
 		perror("");
 		return 0;
@@ -15,7 +15,7 @@ GLuint texture_load(const char * filename) {
 	GLsizei texture_width, texture_height;
 	int texture_maxval;
 	int output = fscanf(file, "P6\n%d %d\n%d\n", &texture_width, &texture_height, &texture_maxval);
-	if(output != 3 || texture_maxval != 255) {
+	if (output != 3 || texture_maxval != 255) {
 		fprintf(stderr, "Invalid texture file %s\n", filename);
 		fclose(file);
 		return 0;
@@ -29,7 +29,7 @@ GLuint texture_load(const char * filename) {
 
 	// allocate texture
 	GLvoid * texture_data = malloc(size);
-	if(!texture_data) {
+	if (!texture_data) {
 		fprintf(stderr, "Couldn't load texture (%s): Memory error: ", filename);
 		perror("");
 		fclose(file);
@@ -38,7 +38,7 @@ GLuint texture_load(const char * filename) {
 
 	// read texture
 	size_t size_read = fread(texture_data, 1, size, file);
-	if(size_read != size) {
+	if (size_read != size) {
 		fprintf(stderr, "Couldn't load texture (%s): Read error: ", filename);
 		perror("");
 		fclose(file);

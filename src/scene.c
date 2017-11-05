@@ -31,7 +31,7 @@ object_list * objects = & (object_list) {
 
 int scene_init() {
 	// init objects
-	if(!object_init_list(objects)) {
+	if (!object_init_list(objects)) {
 		fprintf(stderr, "Error initializing objects\n");
 		object_destroy_list(objects);
 		return 1;
@@ -51,15 +51,15 @@ void scene_update() {
 
 void scene_animate(float secs) {
 	// set the animation
-	for(int i = 0; i < objects->num; i++) {
+	for (int i = 0; i < objects->num; i++) {
 		glUseProgram(objects->list[i]->program);
 		GLfloat matrix[16];
 		matrix_create_identity(matrix); // load up the identity
-		if(objects->list[i]->x_rotation_speed)
+		if (objects->list[i]->x_rotation_speed)
 			matrix_rotate_x(matrix, secs * objects->list[i]->x_rotation_speed); // and modify the matrix to rotate the object over time
-		if(objects->list[i]->y_rotation_speed)
+		if (objects->list[i]->y_rotation_speed)
 			matrix_rotate_y(matrix, secs * objects->list[i]->y_rotation_speed);
-		if(objects->list[i]->z_rotation_speed)
+		if (objects->list[i]->z_rotation_speed)
 			matrix_rotate_z(matrix, secs * objects->list[i]->z_rotation_speed);
 		glUniformMatrix4fv(objects->list[i]->uniform_obj_transform, 1, GL_FALSE, matrix); // apply the transformation matrix
 	}

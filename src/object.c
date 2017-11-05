@@ -7,8 +7,8 @@
 #include "object.h"
 
 int object_init_list(object_list * objects) {
-	for(int i = 0; i < objects->num; i++) {
-		if(!object_init(objects->list[i]))
+	for (int i = 0; i < objects->num; i++) {
+		if (!object_init(objects->list[i]))
 			return 0;
 	}
 
@@ -30,7 +30,7 @@ int object_init(object * current_object) {
 	current_object->uniform_texture = uniform_bind(current_object->program, "texture");
 
 	// check bound variables
-	if(current_object->attribute_coords < 0 || current_object->attribute_texture_coords < 0 || current_object->uniform_obj_transform < 0 || current_object->uniform_world_transform < 0 || current_object->uniform_perspective < 0 || current_object->uniform_texture < 0) {
+	if (current_object->attribute_coords < 0 || current_object->attribute_texture_coords < 0 || current_object->uniform_obj_transform < 0 || current_object->uniform_world_transform < 0 || current_object->uniform_perspective < 0 || current_object->uniform_texture < 0) {
 		fprintf(stderr, "Couldn't bind variables in ");
 		fprintf(stderr, "%s", current_object->shaders[0]);
 		for (int i = 1; i < arrlen(current_object->shaders); i++)
@@ -41,14 +41,14 @@ int object_init(object * current_object) {
 
 	// load the object model file
 	current_object->buffers = object_load(current_object->filename);
-	if(current_object->buffers.vbo == 0 || current_object->buffers.ibo == 0) {
+	if (current_object->buffers.vbo == 0 || current_object->buffers.ibo == 0) {
 		fprintf(stderr, "Couldn't load object model %s\n", current_object->filename);
 		return 0;
 	}
 
 	// load texture file
 	current_object->texture = texture_load(current_object->texture_filename);
-	if(current_object->texture == 0) {
+	if (current_object->texture == 0) {
 		fprintf(stderr, "Couldn't load texture %s\n", current_object->texture_filename);
 		return 0;
 	}
@@ -58,7 +58,7 @@ int object_init(object * current_object) {
 
 buffer object_load(const char * filename) {
 	FILE * file = fopen(filename, "r");
-	if(!file) {
+	if (!file) {
 		fprintf(stderr, "Error opening %s: ", filename);
 		perror("");
 		return (buffer){0, 0};
@@ -67,7 +67,7 @@ buffer object_load(const char * filename) {
 	// get number of vertices and elements
 	int vertices_size, elements_size;
 	int output = fscanf(file, "%d %d\n", &vertices_size, &elements_size);
-	if(output != 2) {
+	if (output != 2) {
 		fprintf(stderr, "Invalid object file %s\n", filename);
 		fclose(file);
 		return (buffer){0, 0};
@@ -75,9 +75,9 @@ buffer object_load(const char * filename) {
 
 	// copy vertex data
 	vertex * vertices = (vertex *)malloc(vertices_size * sizeof(vertex));
-	for(int i = 0; i < vertices_size; i++) {
+	for (int i = 0; i < vertices_size; i++) {
 		output = fscanf(file, "%f %f %f|%f %f\n", &vertices[i].coords[0], &vertices[i].coords[1], &vertices[i].coords[2], &vertices[i].texture_coords[0], &vertices[i].texture_coords[1]);
-		if(output != 5) {
+		if (output != 5) {
 			fprintf(stderr, "Invalid object file %s\n", filename);
 			fclose(file);
 			free(vertices);
@@ -87,9 +87,9 @@ buffer object_load(const char * filename) {
 
 	// copy element data
 	GLushort * elements = (GLushort *)malloc(elements_size * sizeof(GLushort));
-	for(int i = 0; i < elements_size; i++) {
+	for (int i = 0; i < elements_size; i++) {
 		output = fscanf(file, "%hu\n", &elements[i]);
-		if(output != 1) {
+		if (output != 1) {
 			fprintf(stderr, "Invalid object file %s\n", filename);
 			fclose(file);
 			free(vertices);
@@ -120,7 +120,7 @@ buffer object_load(const char * filename) {
 }
 
 void object_display_list(object_list * objects) {
-	for(int i = 0; i < objects->num; i++)
+	for (int i = 0; i < objects->num; i++)
 		object_display(objects->list[i]);
 }
 
@@ -156,7 +156,7 @@ void object_display(object * current_object) {
 }
 
 void object_destroy_list(object_list * objects) {
-	for(int i = 0; i < objects->num; i++)
+	for (int i = 0; i < objects->num; i++)
 		object_destroy(objects->list[i]);
 }
 

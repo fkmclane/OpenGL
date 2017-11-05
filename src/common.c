@@ -7,7 +7,7 @@
 unsigned int arrlen(const char ** arr) {
 	unsigned int len = 0;
 
-	while(arr++)
+	while (arr++)
 		len++;
 
 	return len;
@@ -15,7 +15,7 @@ unsigned int arrlen(const char ** arr) {
 
 char * file_read(const char * filename) {
 	FILE * file = fopen(filename, "r"); // open file
-	if(!file) {
+	if (!file) {
 		fprintf(stderr, "Error opening %s: ", filename);
 		perror("");
 		return NULL;
@@ -26,7 +26,7 @@ char * file_read(const char * filename) {
 	rewind(file);
 
 	char * buffer = (char *)malloc(size + 1); // allocate space for it
-	if(!buffer) {
+	if (!buffer) {
 		fprintf(stderr, "Couldn't load file (%s): Memory error: ", filename);
 		perror("");
 		fclose(file);
@@ -35,7 +35,7 @@ char * file_read(const char * filename) {
 	buffer[size] = '\0'; // and null-terminate it for uses outside of this function
 
 	size_t size_read = fread(buffer, 1, size, file); // read the file into the buffer
-	if(size_read != size) { // and double check its read size to actual size
+	if (size_read != size) { // and double check its read size to actual size
 		fprintf(stderr, "Couldn't load file (%s): Read error: ", filename);
 		perror("");
 		fclose(file);
@@ -50,12 +50,12 @@ char * file_read(const char * filename) {
 void log_print(GLuint object) { // print logs of shaders or programs
 	GLint length = 0;
 	char * log;
-	if(glIsShader(object)) {
+	if (glIsShader(object)) {
 		glGetShaderiv(object, GL_INFO_LOG_LENGTH, &length);
 		log = (char *)malloc(length);
 		glGetShaderInfoLog(object, length, NULL, log);
 	}
-	else if(glIsProgram(object)) {
+	else if (glIsProgram(object)) {
 		glGetProgramiv(object, GL_INFO_LOG_LENGTH, &length);
 		log = (char *)malloc(length);
 		glGetProgramInfoLog(object, length, NULL, log);
