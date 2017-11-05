@@ -11,7 +11,8 @@
 
 #define PI 3.1415926535898
 
-char * fileContents(const char * filename);
-void printLog(GLuint object);
+unsigned int arrlen(const char ** arr);
+char * file_read(const char * filename);
+void log_print(GLuint object);
 
 #endif

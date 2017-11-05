@@ -9,9 +9,9 @@
 #include <GL/glext.h>
 #endif
 
-GLuint loadProgram(const char * vert_filename, const char * frag_filename);
-GLuint loadShader(const char * file, GLenum type);
-GLint bindAttrib(GLuint program, const char * name);
-GLint bindUniform(GLuint program, const char * name);
+GLuint program_load(const char ** shader_filenames, unsigned int shader_num);
+GLuint shader_load(const char * file, GLenum type);
+GLint attrib_bind(GLuint program, const char * name);
+GLint uniform_bind(GLuint program, const char * name);
 
 #endif

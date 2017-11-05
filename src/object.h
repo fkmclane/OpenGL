@@ -10,22 +10,23 @@
 #endif
 
 typedef struct {
-	GLfloat coords[3]; //Coordinates
-	GLfloat texture_coords[2]; //Texture Coordinates
+	GLfloat coords[3]; // coordinates
+	GLfloat texture_coords[2]; // texture coordinates
 } vertex;
 
 typedef struct {
-	GLuint vbo, ibo; //Vertex Buffer Object and Index Buffer Object
+	GLuint vbo, ibo; // vertex buffer object and index buffer object
 } buffer;
 
 typedef struct {
-	const char * filename, * texture_filename, * vert_shader, * frag_shader; //Files
+	const char * filename, * texture_filename; // files
+	const char * shaders[64]; // shaders
 	float x_rotation_speed, y_rotation_speed, z_rotation_speed;
-	GLuint program; //Shader program
-	buffer buffers; //Vertex Buffer and Index Buffer Objects
-	GLuint texture; //Texture
-	GLint attribute_coords, attribute_texture_coords; //Attributes
-	GLint uniform_obj_transform, uniform_world_transform, uniform_perspective, uniform_texture; //Uniforms
+	GLuint program; // shader program
+	buffer buffers; // vertex buffer and index buffer objects
+	GLuint texture; // texture
+	GLint attribute_coords, attribute_texture_coords; // attributes
+	GLint uniform_obj_transform, uniform_world_transform, uniform_perspective, uniform_texture; // uniforms
 } object;
 
 typedef struct {
@@ -33,12 +34,12 @@ typedef struct {
 	int num;
 } object_list;
 
-int initObjects(object_list * objects);
-int initObject(object * current_object);
-buffer loadObject(const char * filename);
-void displayObjects(object_list * objects);
-void displayObject(object * current_object);
-void destroyObjects(object_list * objects);
-void destroyObject(object * current_object);
+int object_init_list(object_list * objects);
+int object_init(object * current_object);
+buffer object_load(const char * filename);
+void object_display_list(object_list * objects);
+void object_display(object * current_object);
+void object_destroy_list(object_list * objects);
+void object_destroy(object * current_object);
 
 #endif

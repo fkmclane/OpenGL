@@ -13,7 +13,7 @@
 #include <GLFW/glfw3.h>
 
 #include "common.h"
-#include "opengl.h"
+#include "world.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -33,46 +33,31 @@
 #define STEP 0.1
 #define ROTATE_STEP PI / 128
 
-object_list * OBJECTS = & (object_list) {
-	.list = & (object *) {
-		& (object) {
-			.filename = "object.obj",
-			.texture_filename = "crate.ppm",
-			.vert_shader = "object.vert.glsl",
-			.frag_shader = "object.frag.glsl",
-			.x_rotation_speed = PI / 4,
-			.y_rotation_speed = PI / 4,
-			.z_rotation_speed = PI / 4,
-		},
-	},
-	.num = sizeof(OBJECTS->list) / sizeof(object *),
-};
-
 long lastsecs = 0;
 int framecount = 0;
-void printFPS() {
-	framecount++; //Increment frame
-	float secs = glfwGetTime(); //Get current running time
-	float time = secs - lastsecs; //Subtract it from the last time and convert to seconds
+void fps_print() {
+	framecount++; // increment frame
+	float secs = glfwGetTime(); // get current running time
+	float time = secs - lastsecs; // subtract it from the last time and convert to seconds
 	if(time >= 1) {
-		fprintf(stderr, "FPS: %3.2f          \r", framecount / time); //Calculate frames / second
-		lastsecs = secs; //Reset everything
+		fprintf(stderr, "FPS: %3.2f          \r", framecount / time); // calculate frames / second
+		lastsecs = secs; // reset everything
 		framecount = 0;
 	}
 }
 
 void resize(GLFWwindow * window, int width, int height) {
-	resizeGL(width, height);
+	world_resize(width, height);
 }
 
 int main(int argc, char * argv[]) {
-	//Initialize GLFW
+	// initialize GLFW
 	if(!glfwInit()) {
 		fprintf(stderr, "Error initializing GLFW\n");
 		return 1;
 	}
 
-	//Initialize window
+	// initialize window
 	GLFWwindow * window = glfwCreateWindow(WIDTH, HEIGHT, "Object", NULL, NULL);
 	if(!window) {
 		fprintf(stderr, "Error creating GLFW window\n");
@@ -80,11 +65,11 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
-	//Initialize context
+	// initialize context
 	glfwMakeContextCurrent(window);
 
 #ifdef HAVE_LIBGLEW
-	//If we have GLEW, initialize it in the window's context
+	// if we have GLEW, initialize it in the window's context
 	if(glewInit() != GLEW_OK) {
 		fprintf(stderr, "Error initializing GLEW\n");
 		glfwTerminate();
@@ -92,59 +77,59 @@ int main(int argc, char * argv[]) {
 	}
 
 #endif
-	//Initialize world
-	if(initGL(FOV, NEAR, FAR, WIDTH, HEIGHT, CAM_X, CAM_Y, CAM_Z, CENTER_X, CENTER_Y, CENTER_Z, CAM_ROLL, OBJECTS)) {
+	// initialize world
+	if(world_init(FOV, NEAR, FAR, WIDTH, HEIGHT, CAM_X, CAM_Y, CAM_Z, CENTER_X, CENTER_Y, CENTER_Z, CAM_ROLL)) {
 		fprintf(stderr, "Error setting up OpenGL world\n");
 		glfwTerminate();
 		return 1;
 	}
 
-	//Add callbacks
+	// add callbacks
 	glfwSetWindowSizeCallback(window, resize);
 
-	//Current action
+	// current action
 	float x, y, z, rot_x, rot_y, rot_z;
 
 	while(!glfwWindowShouldClose(window)) {
-		printFPS();
+		fps_print();
 
 		x = y = z = rot_x = rot_y = rot_z = 0;
 
-		if(glfwGetKey(window, 'Q')) //Quit
+		if(glfwGetKey(window, 'Q')) // quit
 			glfwSetWindowShouldClose(window, GL_TRUE);
 
-		if(glfwGetKey(window, 'W')) //Move forward
+		if(glfwGetKey(window, 'W')) // move forward
 			z -= STEP;
-		if(glfwGetKey(window, 'A')) //Move left
+		if(glfwGetKey(window, 'A')) // move left
 			x -= STEP;
-		if(glfwGetKey(window, 'S')) //Move back
+		if(glfwGetKey(window, 'S')) // move back
 			z += STEP;
-		if(glfwGetKey(window, 'D')) //Move right
+		if(glfwGetKey(window, 'D')) // move right
 			x += STEP;
 
 		if(x != 0 || y != 0 || z != 0)
-			translateGL(x, y, z);
+			world_translate(x, y, z);
 
-		if(glfwGetKey(window, GLFW_KEY_LEFT)) //Turn left
+		if(glfwGetKey(window, GLFW_KEY_LEFT)) // turn left
 			rot_y -= ROTATE_STEP;
-		if(glfwGetKey(window, GLFW_KEY_RIGHT)) //Turn right
+		if(glfwGetKey(window, GLFW_KEY_RIGHT)) // turn right
 			rot_y += ROTATE_STEP;
-		if(glfwGetKey(window, GLFW_KEY_UP)) //Turn up
+		if(glfwGetKey(window, GLFW_KEY_UP)) // turn up
 			rot_x -= ROTATE_STEP;
-		if(glfwGetKey(window, GLFW_KEY_DOWN)) //Turn down
+		if(glfwGetKey(window, GLFW_KEY_DOWN)) // turn down
 			rot_x += ROTATE_STEP;
 
 		if(rot_x != 0 || rot_y != 0 || rot_z != 0)
-			rotateGL(rot_x, rot_y, rot_z);
+			world_rotate(rot_x, rot_y, rot_z);
 
-		animateGL(glfwGetTime());
-		updateGL();
+		world_animate(glfwGetTime());
+		world_update();
 
-		glfwSwapBuffers(window); //Display the buffer
-		glfwPollEvents(); //And check events
+		glfwSwapBuffers(window); // display the buffer
+		glfwPollEvents(); // and check events
 	}
 
-	deinitGL(); //Free up OpenGL resources
-	glfwTerminate(); //Need to tell GLFW to stop
+	world_deinit(); // free up OpenGL resources
+	glfwTerminate(); // need to tell GLFW to stop
 	return 0;
 }

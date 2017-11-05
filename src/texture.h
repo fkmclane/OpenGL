@@ -9,6 +9,6 @@
 #include <GL/glext.h>
 #endif
 
-GLuint loadTexture(const char * filename);
+GLuint texture_load(const char * filename);
 
 #endif

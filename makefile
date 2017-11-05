@@ -4,6 +4,7 @@ all:
 	@for dir in $(DIRS); do \
 		$(MAKE) -C $$dir; \
 	done
+
 clean:
 	@for dir in $(DIRS); do \
 		$(MAKE) -C $$dir clean; \
@@ -14,6 +15,9 @@ dist: all
 	cp bin/main $(DISTDIR)/$(PROJECT)
 	cp $(DIST) $(DISTDIR)/
 
+distclean:
+	rm -rf $(DISTDIR)
+
 release: dist clean
 
-.PHONY: all clean dist release
+.PHONY: all clean dist distclean release

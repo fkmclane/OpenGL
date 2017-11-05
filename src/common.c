@@ -4,8 +4,17 @@
 
 #include "common.h"
 
-char * fileContents(const char * filename) {
-	FILE * file = fopen(filename, "r"); //Open file
+unsigned int arrlen(const char ** arr) {
+	unsigned int len = 0;
+
+	while(arr++)
+		len++;
+
+	return len;
+}
+
+char * file_read(const char * filename) {
+	FILE * file = fopen(filename, "r"); // open file
 	if(!file) {
 		fprintf(stderr, "Error opening %s: ", filename);
 		perror("");
@@ -13,20 +22,20 @@ char * fileContents(const char * filename) {
 	}
 
 	fseek(file, 0, SEEK_END);
-	size_t size = ftell(file); //Get file size
+	size_t size = ftell(file); // get file size
 	rewind(file);
 
-	char * buffer = (char *)malloc(size + 1); //Allocate space for it
+	char * buffer = (char *)malloc(size + 1); // allocate space for it
 	if(!buffer) {
 		fprintf(stderr, "Couldn't load file (%s): Memory error: ", filename);
 		perror("");
 		fclose(file);
 		return NULL;
 	}
-	buffer[size] = '\0'; //And null-terminate it for uses outside of this function
+	buffer[size] = '\0'; // and null-terminate it for uses outside of this function
 
-	size_t size_read = fread(buffer, 1, size, file); //Read the file into the buffer
-	if(size_read != size) { //And double check its read size to actual size
+	size_t size_read = fread(buffer, 1, size, file); // read the file into the buffer
+	if(size_read != size) { // and double check its read size to actual size
 		fprintf(stderr, "Couldn't load file (%s): Read error: ", filename);
 		perror("");
 		fclose(file);
@@ -35,10 +44,10 @@ char * fileContents(const char * filename) {
 	}
 
 	fclose(file);
-	return buffer; //Be sure to free the data when done with it
+	return buffer; // be sure to free the data when done with it
 }
 
-void printLog(GLuint object) { //Print logs of shaders or programs
+void log_print(GLuint object) { // print logs of shaders or programs
 	GLint length = 0;
 	char * log;
 	if(glIsShader(object)) {
