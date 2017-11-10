@@ -10,7 +10,7 @@ GLuint program_load(const char ** shader_filenames, unsigned int shader_num) {
 	GLuint shaders[shader_num];
 
 	// load and attach shaders
-	for (int i = 0; i < shader_num; i++) {
+	for (unsigned int i = 0; i < shader_num; i++) {
 		GLenum type;
 
 		if (strstr(shader_filenames[i], ".vert.glsl") == shader_filenames[i] + strlen(shader_filenames[i]) - strlen(".vert.glsl")) {
@@ -33,14 +33,14 @@ GLuint program_load(const char ** shader_filenames, unsigned int shader_num) {
 	// create program
 	GLuint program = glCreateProgram();
 
-	for (int i = 0; i < shader_num; i++)
+	for (unsigned int i = 0; i < shader_num; i++)
 		glAttachShader(program, shaders[i]);
 
 	// link program
 	glLinkProgram(program);
 
 	// delete shaders
-	for (int i = 0; i < shader_num; i++)
+	for (unsigned int i = 0; i < shader_num; i++)
 		glDeleteShader(shaders[i]);
 
 	// check program

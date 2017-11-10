@@ -23,7 +23,7 @@
 #define FAR -50.0
 
 #define CAM_X 0.0
-#define CAM_Y 2.0
+#define CAM_Y 0.0
 #define CAM_Z 5.0
 #define CENTER_X 0.0
 #define CENTER_Y 0.0
@@ -47,10 +47,15 @@ void fps_print() {
 }
 
 void resize(GLFWwindow * window, int width, int height) {
+	(void)window;
+
 	world_resize(width, height);
 }
 
 int main(int argc, char * argv[]) {
+	(void)argc;
+	(void)argv;
+
 	// initialize GLFW
 	if (!glfwInit()) {
 		fprintf(stderr, "Error initializing GLFW\n");

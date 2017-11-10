@@ -7,7 +7,7 @@
 unsigned int arrlen(const char ** arr) {
 	unsigned int len = 0;
 
-	while (arr++)
+	while (*arr++)
 		len++;
 
 	return len;

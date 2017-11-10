@@ -6,7 +6,7 @@
 
 #include "world.h"
 
-int world_init(float fov_v, float near_v, float far_v, float width, float height, float cam_x, float cam_y, float cam_z, float center_x, float center_y, float center_z, float cam_roll) {
+int world_init(float fov_v, float near_v, float far_v, float width, float height, float cam_x_v, float cam_y_v, float cam_z_v, float center_x, float center_y, float center_z, float cam_roll) {
 	// set up OpenGL parameters
 	glEnable(GL_BLEND); // for transparency
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // also for transparancy
@@ -22,12 +22,20 @@ int world_init(float fov_v, float near_v, float far_v, float width, float height
 	world_resize(width, height);
 
 	// prepare world variables
-	x = y = z = rot_x = rot_y = rot_z = 0;
+	cam_x = cam_x_v;
+	cam_y = cam_y_v;
+	cam_z = cam_z_v;
+
+	x = 0;
+	y = 0;
+	z = 0;
+
+	rot_x = atan2(y - center_y, z - center_z);
+	rot_y = -atan2(x - center_x, z - center_z);
+	rot_z = cam_roll;
 
 	// create world matrix
-	matrix_create_identity(world);
-	world_translate(cam_x, cam_y, cam_z);
-	world_rotate(atan2(y - center_y, z - center_z), -atan2(x - center_x, z - center_z), cam_roll);
+	world_matrix();
 
 	// initialize scene
 	if (scene_init()) {
@@ -73,24 +81,25 @@ void world_update() {
 		glUniformMatrix4fv(objects->list[i]->uniform_world_transform, 1, GL_FALSE, world);
 }
 
-void world_translate(float dx, float dy, float dz) {
-	// undo current rotation to translate world about camera
-	matrix_rotate(world, -rot_x, -rot_y, -rot_z);
-	matrix_translate(world, -dx, -dy, -dz);
+void world_matrix() {
+	matrix_create_identity(world);
+	matrix_translate(world, -x, -y, -z);
 	matrix_rotate(world, rot_x, rot_y, rot_z);
+	matrix_translate(world, -cam_x, -cam_y, -cam_z);
+}
 
+void world_translate(float dx, float dy, float dz) {
 	x += dx;
 	y += dy;
 	z += dz;
+
+	world_matrix();
 }
 
 void world_rotate(float drot_x, float drot_y, float drot_z) {
-	// undo current translation to rotate world about camera
-	matrix_translate(world, x, y, z);
-	matrix_rotate(world, drot_x, drot_y, drot_z);
-	matrix_translate(world, -x, -y, -z);
-
 	rot_x += drot_x;
 	rot_y += drot_y;
 	rot_z += drot_z;
+
+	world_matrix();
 }

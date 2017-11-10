@@ -20,4 +20,7 @@ distclean:
 
 release: dist clean
 
-.PHONY: all clean dist distclean release
+run: dist
+	cd $(DISTDIR); ./$(PROJECT)
+
+.PHONY: all clean dist distclean release run

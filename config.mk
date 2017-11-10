@@ -11,9 +11,9 @@ DISTDIR=dist
 
 CC?=cc
 CPPFLAGS+=-DVERSION=$(VERSION)
-CFLAGS+=-std=c99 `pkg-config --cflags glfw3` -pipe -O2 -ggdb -Wall -Wpedantic -Werror
+CFLAGS+=-std=c11 `pkg-config --cflags glfw3` -pipe -O2 -ggdb -Wall -Wpedantic -Wextra -Werror
 LDLIBS+=-lm -lGL `pkg-config --libs glfw3`
 
 #CPPFLAGS+=-DHAVE_LIBGLEW -DVERSION=$(VERSION)
-#CFLAGS+=-std=c99 `pkg-config --cflags glfw3` -pipe -O2 -ggdb -Wall -Wpedantic -Werror
+#CFLAGS+=-std=c11 `pkg-config --cflags glfw3` -pipe -O2 -ggdb -Wall -Wpedantic -Wextra -Werror
 #LDLIBS+=-lm -lGL -lGLEW  `pkg-config --libs glfw3`

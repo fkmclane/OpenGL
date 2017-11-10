@@ -33,7 +33,7 @@ int object_init(object * current_object) {
 	if (current_object->attribute_coords < 0 || current_object->attribute_texture_coords < 0 || current_object->uniform_obj_transform < 0 || current_object->uniform_world_transform < 0 || current_object->uniform_perspective < 0 || current_object->uniform_texture < 0) {
 		fprintf(stderr, "Couldn't bind variables in ");
 		fprintf(stderr, "%s", current_object->shaders[0]);
-		for (int i = 1; i < arrlen(current_object->shaders); i++)
+		for (unsigned int i = 1; i < arrlen(current_object->shaders); i++)
 			fprintf(stderr, ",%s", current_object->shaders[i]);
 		fprintf(stderr, "\n");
 		return 0;
