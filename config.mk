@@ -1,12 +1,11 @@
 PROJECT=gl-fooster
 VERSION=0.1
 
-SRC=common.c matrix.c object.c world.c scene.c shader.c texture.c
-
-DIRS=bin textures
-DIST=glsl/*.glsl objects/*.obj textures/*.ppm
+DIRS=build pixmaps
+DIST=glsl/*.glsl objects/*.obj pixmaps/*.ppm
 
 SRCDIR=src
+TEXDIR=textures
 DISTDIR=dist
 
 CC?=cc

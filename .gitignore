@@ -1,4 +1,4 @@
-bin/*.o
-bin/main
-textures/*.ppm
+build/*.o
+build/main
+pixmaps/*.ppm
 dist

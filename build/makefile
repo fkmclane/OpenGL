@@ -1,7 +1,8 @@
 include ../config.mk
 
 VPATH=../$(SRCDIR)
-DISTDIR=../$(DISTDIR)
+
+SRC!=find $(VPATH) -name "*.c" -printf "%f "
 
 all: main
 

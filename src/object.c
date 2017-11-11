@@ -1,10 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "shader.h"
 #include "texture.h"
 #include "object.h"
+
+typedef struct {
+	GLfloat coords[3];
+} obj_v;
+
+typedef struct {
+	GLfloat texture_coords[2];
+} obj_vt;
 
 int object_init_list(object_list * objects) {
 	for (int i = 0; i < objects->num; i++) {
@@ -64,41 +73,101 @@ buffer object_load(const char * filename) {
 		return (buffer){0, 0};
 	}
 
-	// get number of vertices and elements
-	int vertices_size, elements_size;
-	int output = fscanf(file, "%d %d\n", &vertices_size, &elements_size);
-	if (output != 2) {
-		fprintf(stderr, "Invalid object file %s\n", filename);
-		fclose(file);
-		return (buffer){0, 0};
+	// get number of vertices and indices
+	int vertices_size = 0, indices_size = 0;
+	while (!feof(file)) {
+		if (fscanf(file, "v %*[^\r\n]%*[\r\n]"))
+			vertices_size++;
+
+		if (fscanf(file, "f %*[^\r\n]%*[\r\n]"))
+			indices_size++;
 	}
 
-	// copy vertex data
-	vertex * vertices = (vertex *)malloc(vertices_size * sizeof(vertex));
-	for (int i = 0; i < vertices_size; i++) {
-		output = fscanf(file, "%f %f %f|%f %f\n", &vertices[i].coords[0], &vertices[i].coords[1], &vertices[i].coords[2], &vertices[i].texture_coords[0], &vertices[i].texture_coords[1]);
-		if (output != 5) {
-			fprintf(stderr, "Invalid object file %s\n", filename);
-			fclose(file);
-			free(vertices);
-			return (buffer){0, 0};
-		}
-	}
+	// get data
+	obj_v * obj_vertices = (obj_v *)malloc(vertices_size * sizeof(obj_v));
+	unsigned int ovi = 0;
+	obj_vt * obj_texture_coords = (obj_vt *)malloc(vertices_size * sizeof(obj_vt));
+	unsigned int oti = 0;
 
-	// copy element data
-	GLushort * elements = (GLushort *)malloc(elements_size * sizeof(GLushort));
-	for (int i = 0; i < elements_size; i++) {
-		output = fscanf(file, "%hu\n", &elements[i]);
-		if (output != 1) {
-			fprintf(stderr, "Invalid object file %s\n", filename);
-			fclose(file);
-			free(vertices);
-			free(elements);
-			return (buffer){0, 0};
+	GLushort * indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
+	GLushort * texture_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
+	unsigned int oii = 0;
+
+	// read full file
+	while (!feof(file)) {
+		int output;
+		char type[16];
+
+		// get type
+		output = fscanf(file, "%15s", type);
+
+		if (output != 1)
+			continue;
+
+		// coordinate
+		if (strcmp(type, "v") == 0) {
+			output = fscanf(file, "%f %f %f", &obj_vertices[ovi].coords[0], &obj_vertices[ovi].coords[1], &obj_vertices[ovi].coords[2]);
+			if (output != 3) {
+				fprintf(stderr, "Invalid object file %s\n", filename);
+				fclose(file);
+				free(obj_vertices);
+				free(obj_texture_coords);
+				free(indices);
+				free(texture_indices);
+				return (buffer){0, 0};
+			}
+
+			ovi++;
 		}
+		// texture coordinate
+		else if (strcmp(type, "vt") == 0) {
+			output = fscanf(file, "%f %f", &obj_texture_coords[oti].texture_coords[0], &obj_texture_coords[oti].texture_coords[1]);
+			if (output != 2) {
+				fprintf(stderr, "Invalid object file %s\n", filename);
+				fclose(file);
+				free(obj_vertices);
+				free(obj_texture_coords);
+				free(indices);
+				free(texture_indices);
+				return (buffer){0, 0};
+			}
+
+			oti++;
+		}
+		// face
+		else if (strcmp(type, "f") == 0) {
+			output = fscanf(file, "%hu/%hu/%*u %hu/%hu/%*u %hu/%hu/%*u", &indices[oii], &texture_indices[oii], &indices[oii + 1], &texture_indices[oii + 1], &indices[oii + 2], &texture_indices[oii + 2]);
+			if (output != 9) {
+				fprintf(stderr, "Invalid object file %s\n", filename);
+				fclose(file);
+				free(obj_vertices);
+				free(obj_texture_coords);
+				free(indices);
+				free(texture_indices);
+				return (buffer){0, 0};
+			}
+
+			oii += 3;
+		}
+
+		output = fscanf(file, "%*[^\r\n]%*[\r\n]");
 	}
 
 	fclose(file);
+
+	// create vertices
+	vertex * vertices = (vertex *)malloc(indices_size * sizeof(vertex));
+	for (int i = 0; i < indices_size; i++) {
+		vertices[i].coords[0] = obj_vertices[indices[i] - 1].coords[0];
+		vertices[i].coords[1] = obj_vertices[indices[i] - 1].coords[1];
+		vertices[i].coords[2] = obj_vertices[indices[i] - 1].coords[2];
+		vertices[i].texture_coords[0] = obj_texture_coords[texture_indices[i] - 1].texture_coords[0];
+		vertices[i].texture_coords[1] = obj_texture_coords[texture_indices[i] - 1].texture_coords[1];
+	}
+
+	free(obj_vertices);
+	free(obj_texture_coords);
+	free(texture_indices);
 
 	// generate buffers
 	buffer buffers;
@@ -107,14 +176,14 @@ buffer object_load(const char * filename) {
 
 	// fill vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers.vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices_size * sizeof(vertex), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, indices_size * sizeof(vertex), vertices, GL_STATIC_DRAW);
 
 	// fill element buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers.ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements_size * sizeof(GLushort), elements, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof(GLushort), indices, GL_STATIC_DRAW);
 
 	free(vertices);
-	free(elements);
+	free(indices);
 
 	return buffers;
 }

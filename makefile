@@ -12,7 +12,7 @@ clean:
 
 dist: all
 	mkdir -p $(DISTDIR)
-	cp bin/main $(DISTDIR)/$(PROJECT)
+	cp build/main $(DISTDIR)/$(PROJECT)
 	cp $(DIST) $(DISTDIR)/
 
 distclean:
