@@ -74,19 +74,34 @@ buffer object_load(const char * filename) {
 	}
 
 	// get number of vertices and indices
-	int vertices_size = 0, indices_size = 0;
+	int vertices_size = 0, texture_coords_size = 0, indices_size = 0;
 	while (!feof(file)) {
-		if (fscanf(file, "v %*[^\r\n]%*[\r\n]"))
+		int output;
+		char type[16];
+
+		(void)output;
+
+		// get type
+		output = fscanf(file, "%15s", type);
+
+		if (strcmp(type, "v") == 0)
 			vertices_size++;
 
-		if (fscanf(file, "f %*[^\r\n]%*[\r\n]"))
+		if (strcmp(type, "vt") == 0)
+			texture_coords_size++;
+
+		if (strcmp(type, "f") == 0)
 			indices_size++;
+
+		output = fscanf(file, "%*[^\r\n]%*[\r\n]");
 	}
+
+	rewind(file);
 
 	// get data
 	obj_v * obj_vertices = (obj_v *)malloc(vertices_size * sizeof(obj_v));
 	unsigned int ovi = 0;
-	obj_vt * obj_texture_coords = (obj_vt *)malloc(vertices_size * sizeof(obj_vt));
+	obj_vt * obj_texture_coords = (obj_vt *)malloc(texture_coords_size * sizeof(obj_vt));
 	unsigned int oti = 0;
 
 	GLushort * indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
@@ -137,7 +152,7 @@ buffer object_load(const char * filename) {
 		// face
 		else if (strcmp(type, "f") == 0) {
 			output = fscanf(file, "%hu/%hu/%*u %hu/%hu/%*u %hu/%hu/%*u", &indices[oii], &texture_indices[oii], &indices[oii + 1], &texture_indices[oii + 1], &indices[oii + 2], &texture_indices[oii + 2]);
-			if (output != 9) {
+			if (output != 6) {
 				fprintf(stderr, "Invalid object file %s\n", filename);
 				fclose(file);
 				free(obj_vertices);
