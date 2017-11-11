@@ -16,7 +16,7 @@ typedef struct {
 } obj_vt;
 
 typedef struct {
-	GLfloat vector[3];
+	GLfloat normal[3];
 } obj_vn;
 
 int object_init_list(object_list * objects) {
@@ -88,16 +88,17 @@ buffer object_load(const char * filename) {
 		// get type
 		output = fscanf(file, "%15s", type);
 
+		// vertex
 		if (strcmp(type, "v") == 0)
 			vertices_size++;
-
-		if (strcmp(type, "vt") == 0)
+		// texture coords
+		else if (strcmp(type, "vt") == 0)
 			texture_coords_size++;
-
-		if (strcmp(type, "vn") == 0)
+		// normal
+		else if (strcmp(type, "vn") == 0)
 			normals_size++;
-
-		if (strcmp(type, "f") == 0)
+		// face
+		else if (strcmp(type, "f") == 0)
 			indices_size++;
 
 		output = fscanf(file, "%*[^\r\n]%*[\r\n]");
@@ -113,9 +114,9 @@ buffer object_load(const char * filename) {
 	obj_vn * obj_normals = (obj_vn *)malloc(normals_size * sizeof(obj_vn));
 	unsigned int oni = 0;
 
-	GLushort * indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
-	GLushort * texture_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
-	GLushort * normal_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
+	GLushort * obj_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
+	GLushort * obj_texture_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
+	GLushort * obj_normal_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
 	unsigned int oii = 0;
 
 	// read full file
@@ -138,9 +139,9 @@ buffer object_load(const char * filename) {
 				free(obj_vertices);
 				free(obj_texture_coords);
 				free(obj_normals);
-				free(indices);
-				free(texture_indices);
-				free(normal_indices);
+				free(obj_indices);
+				free(obj_texture_indices);
+				free(obj_normal_indices);
 				return (buffer){0, 0};
 			}
 
@@ -155,9 +156,9 @@ buffer object_load(const char * filename) {
 				free(obj_vertices);
 				free(obj_texture_coords);
 				free(obj_normals);
-				free(indices);
-				free(texture_indices);
-				free(normal_indices);
+				free(obj_indices);
+				free(obj_texture_indices);
+				free(obj_normal_indices);
 				return (buffer){0, 0};
 			}
 
@@ -165,16 +166,16 @@ buffer object_load(const char * filename) {
 		}
 		// normal
 		else if (strcmp(type, "vn") == 0) {
-			output = fscanf(file, "%f %f %f", &obj_normals[oni].vector[0], &obj_normals[oni].vector[1], &obj_normals[oni].vector[2]);
+			output = fscanf(file, "%f %f %f", &obj_normals[oni].normal[0], &obj_normals[oni].normal[1], &obj_normals[oni].normal[2]);
 			if (output != 3) {
 				fprintf(stderr, "Invalid object file %s\n", filename);
 				fclose(file);
 				free(obj_vertices);
 				free(obj_texture_coords);
 				free(obj_normals);
-				free(indices);
-				free(texture_indices);
-				free(normal_indices);
+				free(obj_indices);
+				free(obj_texture_indices);
+				free(obj_normal_indices);
 				return (buffer){0, 0};
 			}
 
@@ -182,16 +183,16 @@ buffer object_load(const char * filename) {
 		}
 		// face
 		else if (strcmp(type, "f") == 0) {
-			output = fscanf(file, "%hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu", &indices[oii], &texture_indices[oii], &normal_indices[oii], &indices[oii + 1], &texture_indices[oii + 1], &normal_indices[oii + 1], &indices[oii + 2], &texture_indices[oii + 2], &normal_indices[oii + 2]);
+			output = fscanf(file, "%hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu", &obj_indices[oii], &obj_texture_indices[oii], &obj_normal_indices[oii], &obj_indices[oii + 1], &obj_texture_indices[oii + 1], &obj_normal_indices[oii + 1], &obj_indices[oii + 2], &obj_texture_indices[oii + 2], &obj_normal_indices[oii + 2]);
 			if (output != 9) {
 				fprintf(stderr, "Invalid object file %s\n", filename);
 				fclose(file);
 				free(obj_vertices);
 				free(obj_texture_coords);
 				free(obj_normals);
-				free(indices);
-				free(texture_indices);
-				free(normal_indices);
+				free(obj_indices);
+				free(obj_texture_indices);
+				free(obj_normal_indices);
 				return (buffer){0, 0};
 			}
 
@@ -203,21 +204,72 @@ buffer object_load(const char * filename) {
 
 	fclose(file);
 
-	// create vertices
+	// create indexed vertices
 	vertex * vertices = (vertex *)malloc(indices_size * sizeof(vertex));
-	for (int i = 0; i < indices_size; i++) {
-		vertices[i].coords[0] = obj_vertices[indices[i] - 1].coords[0];
-		vertices[i].coords[1] = obj_vertices[indices[i] - 1].coords[1];
-		vertices[i].coords[2] = obj_vertices[indices[i] - 1].coords[2];
-		vertices[i].texture_coords[0] = obj_texture_coords[texture_indices[i] - 1].texture_coords[0];
-		vertices[i].texture_coords[1] = obj_texture_coords[texture_indices[i] - 1].texture_coords[1];
+	vertex_normal * normals = (vertex_normal *)malloc(indices_size * sizeof(vertex_normal));
+	GLushort * indices = (GLushort *)malloc(indices_size * sizeof(GLushort));
+	for (int vidx = 0, iidx = 0, idx = 0; idx < indices_size; idx++) {
+		// vertex parameters
+		GLfloat x, y, z, u, v, i, j, k;
+
+		// coords
+		x = obj_vertices[obj_indices[idx] - 1].coords[0];
+		y = obj_vertices[obj_indices[idx] - 1].coords[1];
+		z = obj_vertices[obj_indices[idx] - 1].coords[2];
+
+		// texture coords
+		u = obj_texture_coords[obj_texture_indices[idx] - 1].texture_coords[0];
+		v = obj_texture_coords[obj_texture_indices[idx] - 1].texture_coords[1];
+
+		// normal
+		i = obj_normals[obj_normal_indices[idx] - 1].normal[0];
+		j = obj_normals[obj_normal_indices[idx] - 1].normal[1];
+		k = obj_normals[obj_normal_indices[idx] - 1].normal[2];
+
+		int near = -1;
+		for (int v = 0; v < vidx; v++) {
+			if (IS_NEAR(vertices[v].coords[0], x) &&
+			    IS_NEAR(vertices[v].coords[1], x) &&
+			    IS_NEAR(vertices[v].coords[2], x) &&
+			    IS_NEAR(vertices[v].texture_coords[0], u) &&
+			    IS_NEAR(vertices[v].texture_coords[1], u) &&
+			    IS_NEAR(normals[v].normal[0], i) &&
+			    IS_NEAR(normals[v].normal[0], j) &&
+			    IS_NEAR(normals[v].normal[0], k)) {
+
+				near = v;
+				break;
+			}
+		}
+
+		if (near >= 0) {
+			indices[iidx] = near;
+		}
+		else {
+			vertices[vidx].coords[0] = x;
+			vertices[vidx].coords[1] = y;
+			vertices[vidx].coords[2] = z;
+			vertices[vidx].texture_coords[0] = u;
+			vertices[vidx].texture_coords[1] = v;
+
+			normals[vidx].normal[0] = i;
+			normals[vidx].normal[1] = j;
+			normals[vidx].normal[2] = k;
+
+			indices[iidx] = vidx;
+
+			vidx++;
+		}
+
+		iidx++;
 	}
 
 	free(obj_vertices);
 	free(obj_texture_coords);
 	free(obj_normals);
-	free(texture_indices);
-	free(normal_indices);
+	free(obj_indices);
+	free(obj_texture_indices);
+	free(obj_normal_indices);
 
 	// generate buffers
 	buffer buffers;

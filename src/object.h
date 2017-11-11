@@ -15,6 +15,10 @@ typedef struct {
 } vertex;
 
 typedef struct {
+	GLfloat normal[3]; // normal vector
+} vertex_normal;
+
+typedef struct {
 	GLuint vbo, ibo; // vertex buffer object and index buffer object
 } buffer;
 
