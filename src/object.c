@@ -15,6 +15,10 @@ typedef struct {
 	GLfloat texture_coords[2];
 } obj_vt;
 
+typedef struct {
+	GLfloat vector[3];
+} obj_vn;
+
 int object_init_list(object_list * objects) {
 	for (int i = 0; i < objects->num; i++) {
 		if (!object_init(objects->list[i]))
@@ -74,7 +78,7 @@ buffer object_load(const char * filename) {
 	}
 
 	// get number of vertices and indices
-	int vertices_size = 0, texture_coords_size = 0, indices_size = 0;
+	int vertices_size = 0, texture_coords_size = 0, normals_size, indices_size = 0;
 	while (!feof(file)) {
 		int output;
 		char type[16];
@@ -90,6 +94,9 @@ buffer object_load(const char * filename) {
 		if (strcmp(type, "vt") == 0)
 			texture_coords_size++;
 
+		if (strcmp(type, "vn") == 0)
+			normals_size++;
+
 		if (strcmp(type, "f") == 0)
 			indices_size++;
 
@@ -103,9 +110,12 @@ buffer object_load(const char * filename) {
 	unsigned int ovi = 0;
 	obj_vt * obj_texture_coords = (obj_vt *)malloc(texture_coords_size * sizeof(obj_vt));
 	unsigned int oti = 0;
+	obj_vn * obj_normals = (obj_vn *)malloc(normals_size * sizeof(obj_vn));
+	unsigned int oni = 0;
 
 	GLushort * indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
 	GLushort * texture_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
+	GLushort * normal_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
 	unsigned int oii = 0;
 
 	// read full file
@@ -127,8 +137,10 @@ buffer object_load(const char * filename) {
 				fclose(file);
 				free(obj_vertices);
 				free(obj_texture_coords);
+				free(obj_normals);
 				free(indices);
 				free(texture_indices);
+				free(normal_indices);
 				return (buffer){0, 0};
 			}
 
@@ -142,23 +154,44 @@ buffer object_load(const char * filename) {
 				fclose(file);
 				free(obj_vertices);
 				free(obj_texture_coords);
+				free(obj_normals);
 				free(indices);
 				free(texture_indices);
+				free(normal_indices);
 				return (buffer){0, 0};
 			}
 
 			oti++;
 		}
-		// face
-		else if (strcmp(type, "f") == 0) {
-			output = fscanf(file, "%hu/%hu/%*u %hu/%hu/%*u %hu/%hu/%*u", &indices[oii], &texture_indices[oii], &indices[oii + 1], &texture_indices[oii + 1], &indices[oii + 2], &texture_indices[oii + 2]);
-			if (output != 6) {
+		// normal
+		else if (strcmp(type, "vn") == 0) {
+			output = fscanf(file, "%f %f %f", &obj_normals[oni].vector[0], &obj_normals[oni].vector[1], &obj_normals[oni].vector[2]);
+			if (output != 3) {
 				fprintf(stderr, "Invalid object file %s\n", filename);
 				fclose(file);
 				free(obj_vertices);
 				free(obj_texture_coords);
+				free(obj_normals);
 				free(indices);
 				free(texture_indices);
+				free(normal_indices);
+				return (buffer){0, 0};
+			}
+
+			oni++;
+		}
+		// face
+		else if (strcmp(type, "f") == 0) {
+			output = fscanf(file, "%hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu", &indices[oii], &texture_indices[oii], &normal_indices[oii], &indices[oii + 1], &texture_indices[oii + 1], &normal_indices[oii + 1], &indices[oii + 2], &texture_indices[oii + 2], &normal_indices[oii + 2]);
+			if (output != 9) {
+				fprintf(stderr, "Invalid object file %s\n", filename);
+				fclose(file);
+				free(obj_vertices);
+				free(obj_texture_coords);
+				free(obj_normals);
+				free(indices);
+				free(texture_indices);
+				free(normal_indices);
 				return (buffer){0, 0};
 			}
 
@@ -182,7 +215,9 @@ buffer object_load(const char * filename) {
 
 	free(obj_vertices);
 	free(obj_texture_coords);
+	free(obj_normals);
 	free(texture_indices);
+	free(normal_indices);
 
 	// generate buffers
 	buffer buffers;

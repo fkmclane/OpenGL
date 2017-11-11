@@ -18,8 +18,8 @@
 object_list * objects = & (object_list) {
 	.list = & (object *) {
 		& (object) {
-			.filename = "cube.obj",
-			.texture_filename = "blank.ppm",
+			.filename = "suzanne.obj",
+			.texture_filename = "rainbow.ppm",
 			.shaders = {"object.vert.glsl", "object.frag.glsl", NULL},
 			.x_rotation_speed = PI / 4,
 			.y_rotation_speed = PI / 4,
