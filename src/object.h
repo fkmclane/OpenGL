@@ -12,11 +12,8 @@
 typedef struct {
 	GLfloat coords[3]; // coordinates
 	GLfloat texture_coords[2]; // texture coordinates
-} vertex;
-
-typedef struct {
 	GLfloat normal[3]; // normal vector
-} vertex_normal;
+} vertex;
 
 typedef struct {
 	GLuint vbo, ibo; // vertex buffer object and index buffer object
@@ -29,7 +26,7 @@ typedef struct {
 	GLuint program; // shader program
 	buffer buffers; // vertex buffer and index buffer objects
 	GLuint texture; // texture
-	GLint attribute_coords, attribute_texture_coords; // attributes
+	GLint attribute_coords, attribute_texture_coords, attribute_normal; // attributes
 	GLint uniform_obj_transform, uniform_world_transform, uniform_perspective, uniform_texture; // uniforms
 } object;
 

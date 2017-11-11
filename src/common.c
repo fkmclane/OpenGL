@@ -27,7 +27,7 @@ char * file_read(const char * filename) {
 
 	char * buffer = (char *)malloc(size + 1); // allocate space for it
 	if (!buffer) {
-		fprintf(stderr, "Couldn't load file (%s): Memory error: ", filename);
+		fprintf(stderr, "Could not load file (%s): Memory error: ", filename);
 		perror("");
 		fclose(file);
 		return NULL;
@@ -36,7 +36,7 @@ char * file_read(const char * filename) {
 
 	size_t size_read = fread(buffer, 1, size, file); // read the file into the buffer
 	if (size_read != size) { // and double check its read size to actual size
-		fprintf(stderr, "Couldn't load file (%s): Read error: ", filename);
+		fprintf(stderr, "Could not load file (%s): Read error: ", filename);
 		perror("");
 		fclose(file);
 		free(buffer);

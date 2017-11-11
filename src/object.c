@@ -35,6 +35,7 @@ int object_init(object * current_object) {
 	// set attributes
 	current_object->attribute_coords = attrib_bind(current_object->program, "coords");
 	current_object->attribute_texture_coords = attrib_bind(current_object->program, "texture_coords");
+	current_object->attribute_normal = attrib_bind(current_object->program, "normal");
 
 	// set uniforms
 	current_object->uniform_obj_transform = uniform_bind(current_object->program, "obj_transform");
@@ -43,11 +44,11 @@ int object_init(object * current_object) {
 	current_object->uniform_texture = uniform_bind(current_object->program, "texture");
 
 	// check bound variables
-	if (current_object->attribute_coords < 0 || current_object->attribute_texture_coords < 0 || current_object->uniform_obj_transform < 0 || current_object->uniform_world_transform < 0 || current_object->uniform_perspective < 0 || current_object->uniform_texture < 0) {
-		fprintf(stderr, "Couldn't bind variables in ");
+	if (current_object->attribute_coords < 0 || current_object->attribute_texture_coords < 0 || current_object->attribute_normal < 0 || current_object->uniform_obj_transform < 0 || current_object->uniform_world_transform < 0 || current_object->uniform_perspective < 0 || current_object->uniform_texture < 0) {
+		fprintf(stderr, "Could not bind variables in ");
 		fprintf(stderr, "%s", current_object->shaders[0]);
 		for (unsigned int i = 1; i < arrlen(current_object->shaders); i++)
-			fprintf(stderr, ",%s", current_object->shaders[i]);
+			fprintf(stderr, ", %s", current_object->shaders[i]);
 		fprintf(stderr, "\n");
 		return 0;
 	}
@@ -55,14 +56,14 @@ int object_init(object * current_object) {
 	// load the object model file
 	current_object->buffers = object_load(current_object->filename);
 	if (current_object->buffers.vbo == 0 || current_object->buffers.ibo == 0) {
-		fprintf(stderr, "Couldn't load object model %s\n", current_object->filename);
+		fprintf(stderr, "Could not load object model %s\n", current_object->filename);
 		return 0;
 	}
 
 	// load texture file
 	current_object->texture = texture_load(current_object->texture_filename);
 	if (current_object->texture == 0) {
-		fprintf(stderr, "Couldn't load texture %s\n", current_object->texture_filename);
+		fprintf(stderr, "Could not load texture %s\n", current_object->texture_filename);
 		return 0;
 	}
 
@@ -78,7 +79,7 @@ buffer object_load(const char * filename) {
 	}
 
 	// get number of vertices and indices
-	int vertices_size = 0, texture_coords_size = 0, normals_size, indices_size = 0;
+	int obj_vertices_size = 0, obj_texture_coords_size = 0, obj_normals_size = 0, obj_indices_size = 0;
 	while (!feof(file)) {
 		int output;
 		char type[16];
@@ -90,16 +91,16 @@ buffer object_load(const char * filename) {
 
 		// vertex
 		if (strcmp(type, "v") == 0)
-			vertices_size++;
+			obj_vertices_size++;
 		// texture coords
 		else if (strcmp(type, "vt") == 0)
-			texture_coords_size++;
+			obj_texture_coords_size++;
 		// normal
 		else if (strcmp(type, "vn") == 0)
-			normals_size++;
+			obj_normals_size++;
 		// face
 		else if (strcmp(type, "f") == 0)
-			indices_size++;
+			obj_indices_size++;
 
 		output = fscanf(file, "%*[^\r\n]%*[\r\n]");
 	}
@@ -107,16 +108,16 @@ buffer object_load(const char * filename) {
 	rewind(file);
 
 	// get data
-	obj_v * obj_vertices = (obj_v *)malloc(vertices_size * sizeof(obj_v));
+	obj_v * obj_vertices = (obj_v *)malloc(obj_vertices_size * sizeof(obj_v));
 	unsigned int ovi = 0;
-	obj_vt * obj_texture_coords = (obj_vt *)malloc(texture_coords_size * sizeof(obj_vt));
+	obj_vt * obj_texture_coords = (obj_vt *)malloc(obj_texture_coords_size * sizeof(obj_vt));
 	unsigned int oti = 0;
-	obj_vn * obj_normals = (obj_vn *)malloc(normals_size * sizeof(obj_vn));
+	obj_vn * obj_normals = (obj_vn *)malloc(obj_normals_size * sizeof(obj_vn));
 	unsigned int oni = 0;
 
-	GLushort * obj_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
-	GLushort * obj_texture_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
-	GLushort * obj_normal_indices = (GLushort *)malloc(indices_size * 3 * sizeof(GLushort));
+	GLushort * obj_indices = (GLushort *)malloc(obj_indices_size * 3 * sizeof(GLushort));
+	GLushort * obj_texture_indices = (GLushort *)malloc(obj_indices_size * 3 * sizeof(GLushort));
+	GLushort * obj_normal_indices = (GLushort *)malloc(obj_indices_size * 3 * sizeof(GLushort));
 	unsigned int oii = 0;
 
 	// read full file
@@ -205,10 +206,12 @@ buffer object_load(const char * filename) {
 	fclose(file);
 
 	// create indexed vertices
-	vertex * vertices = (vertex *)malloc(indices_size * sizeof(vertex));
-	vertex_normal * normals = (vertex_normal *)malloc(indices_size * sizeof(vertex_normal));
-	GLushort * indices = (GLushort *)malloc(indices_size * sizeof(GLushort));
-	for (int vidx = 0, iidx = 0, idx = 0; idx < indices_size; idx++) {
+	int vertices_size = 0;
+	int indices_size = 0;
+
+	vertex * vertices = (vertex *)malloc(obj_indices_size * sizeof(vertex));
+	GLushort * indices = (GLushort *)malloc(obj_indices_size * sizeof(GLushort));
+	for (int idx = 0; idx < indices_size; idx++) {
 		// vertex parameters
 		GLfloat x, y, z, u, v, i, j, k;
 
@@ -227,15 +230,17 @@ buffer object_load(const char * filename) {
 		k = obj_normals[obj_normal_indices[idx] - 1].normal[2];
 
 		int near = -1;
-		for (int v = 0; v < vidx; v++) {
+		for (int v = 0; v < vertices_size; v++) {
 			if (IS_NEAR(vertices[v].coords[0], x) &&
-			    IS_NEAR(vertices[v].coords[1], x) &&
-			    IS_NEAR(vertices[v].coords[2], x) &&
+			    IS_NEAR(vertices[v].coords[1], y) &&
+			    IS_NEAR(vertices[v].coords[2], z) &&
+
 			    IS_NEAR(vertices[v].texture_coords[0], u) &&
-			    IS_NEAR(vertices[v].texture_coords[1], u) &&
-			    IS_NEAR(normals[v].normal[0], i) &&
-			    IS_NEAR(normals[v].normal[0], j) &&
-			    IS_NEAR(normals[v].normal[0], k)) {
+			    IS_NEAR(vertices[v].texture_coords[1], v) &&
+
+			    IS_NEAR(vertices[v].normal[0], i) &&
+			    IS_NEAR(vertices[v].normal[0], j) &&
+			    IS_NEAR(vertices[v].normal[0], k)) {
 
 				near = v;
 				break;
@@ -243,25 +248,26 @@ buffer object_load(const char * filename) {
 		}
 
 		if (near >= 0) {
-			indices[iidx] = near;
+			indices[indices_size] = near;
 		}
 		else {
-			vertices[vidx].coords[0] = x;
-			vertices[vidx].coords[1] = y;
-			vertices[vidx].coords[2] = z;
-			vertices[vidx].texture_coords[0] = u;
-			vertices[vidx].texture_coords[1] = v;
+			vertices[vertices_size].coords[0] = x;
+			vertices[vertices_size].coords[1] = y;
+			vertices[vertices_size].coords[2] = z;
 
-			normals[vidx].normal[0] = i;
-			normals[vidx].normal[1] = j;
-			normals[vidx].normal[2] = k;
+			vertices[vertices_size].texture_coords[0] = u;
+			vertices[vertices_size].texture_coords[1] = v;
 
-			indices[iidx] = vidx;
+			vertices[vertices_size].normal[0] = i;
+			vertices[vertices_size].normal[1] = j;
+			vertices[vertices_size].normal[2] = k;
 
-			vidx++;
+			indices[indices_size] = vertices_size;
+
+			vertices_size++;
 		}
 
-		iidx++;
+		indices_size++;
 	}
 
 	free(obj_vertices);
@@ -278,7 +284,7 @@ buffer object_load(const char * filename) {
 
 	// fill vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers.vbo);
-	glBufferData(GL_ARRAY_BUFFER, indices_size * sizeof(vertex), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices_size * sizeof(vertex), vertices, GL_STATIC_DRAW);
 
 	// fill element buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers.ibo);
@@ -302,9 +308,11 @@ void object_display(object * current_object) {
 	// specify vertex attribute arrays and bind to vertex buffer
 	glEnableVertexAttribArray(current_object->attribute_coords);
 	glEnableVertexAttribArray(current_object->attribute_texture_coords);
+	glEnableVertexAttribArray(current_object->attribute_normal);
 	glBindBuffer(GL_ARRAY_BUFFER, current_object->buffers.vbo);
-	glVertexAttribPointer(current_object->attribute_coords, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), 0); // (attribute, # of elements per vertex, type, take values as they are, stride, offset)
+	glVertexAttribPointer(current_object->attribute_coords, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (GLvoid *)offsetof(vertex, coords)); // (attribute, # of elements per vertex, type, take values as they are, stride, offset)
 	glVertexAttribPointer(current_object->attribute_texture_coords, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (GLvoid *)offsetof(vertex, texture_coords));
+	glVertexAttribPointer(current_object->attribute_normal, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (GLvoid *)offsetof(vertex, normal));
 
 	// bind 2D texture to the fragment shader
 	glActiveTexture(GL_TEXTURE0);
@@ -324,6 +332,7 @@ void object_display(object * current_object) {
 	// unspecify vertex attribute arrays
 	glDisableVertexAttribArray(current_object->attribute_coords);
 	glDisableVertexAttribArray(current_object->attribute_texture_coords);
+	glDisableVertexAttribArray(current_object->attribute_normal);
 }
 
 void object_destroy_list(object_list * objects) {

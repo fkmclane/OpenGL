@@ -30,7 +30,7 @@ GLuint texture_load(const char * filename) {
 	// allocate texture
 	GLvoid * texture_data = malloc(size);
 	if (!texture_data) {
-		fprintf(stderr, "Couldn't load texture (%s): Memory error: ", filename);
+		fprintf(stderr, "Could not load texture (%s): Memory error: ", filename);
 		perror("");
 		fclose(file);
 		return 0;
@@ -39,7 +39,7 @@ GLuint texture_load(const char * filename) {
 	// read texture
 	size_t size_read = fread(texture_data, 1, size, file);
 	if (size_read != size) {
-		fprintf(stderr, "Couldn't load texture (%s): Read error: ", filename);
+		fprintf(stderr, "Could not load texture (%s): Read error: ", filename);
 		perror("");
 		fclose(file);
 		free(texture_data);
