@@ -10,5 +10,6 @@ varying vec3 v_normal;
 
 void main() {
 	// update pixel with color from texture corresponding to this object coordinate
-	gl_FragColor = texture2D(texture, v_texture_coords);
+	gl_FragColor.rgb = texture2D(texture, v_texture_coords).rgb + v_normal;
+	gl_FragColor.a = 1;
 }
