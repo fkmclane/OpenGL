@@ -100,7 +100,7 @@ buffer object_load(const char * filename) {
 			obj_normals_size++;
 		// face
 		else if (strcmp(type, "f") == 0)
-			obj_indices_size++;
+			obj_indices_size += 3;
 
 		output = fscanf(file, "%*[^\r\n]%*[\r\n]");
 	}
@@ -212,6 +212,8 @@ buffer object_load(const char * filename) {
 	vertex * vertices = (vertex *)malloc(obj_indices_size * sizeof(vertex));
 	GLushort * indices = (GLushort *)malloc(obj_indices_size * sizeof(GLushort));
 	for (int idx = 0; idx < obj_indices_size; idx++) {
+		fprintf(stderr, "try: %d/%d/%d\n\n", obj_indices[idx] - 1, obj_texture_indices[idx] - 1, obj_normal_indices[idx] - 1);
+
 		// vertex parameters
 		GLfloat x, y, z, u, v, i, j, k;
 
