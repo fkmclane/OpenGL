@@ -212,8 +212,6 @@ buffer object_load(const char * filename) {
 	vertex * vertices = (vertex *)malloc(obj_indices_size * sizeof(vertex));
 	GLushort * indices = (GLushort *)malloc(obj_indices_size * sizeof(GLushort));
 	for (int idx = 0; idx < obj_indices_size; idx++) {
-		fprintf(stderr, "try: %d/%d/%d\n\n", obj_indices[idx] - 1, obj_texture_indices[idx] - 1, obj_normal_indices[idx] - 1);
-
 		// vertex parameters
 		GLfloat x, y, z, u, v, i, j, k;
 
@@ -233,7 +231,6 @@ buffer object_load(const char * filename) {
 
 		int near = -1;
 		for (int vert = 0; vert < vertices_size; vert++) {
-			fprintf(stderr, "check: %d: %s\n\tx: %f: %s\n\ty: %f: %s\n\tz: %f: %s\n\n\tu: %f: %s\n\tv: %f: %s\n\n\ti: %f: %s\n\tj: %f: %s\n\tk: %f: %s\n\n", vert, IS_NEAR(vertices[vert].coords[0], x) && IS_NEAR(vertices[vert].coords[1], y) && IS_NEAR(vertices[vert].coords[2], z) && IS_NEAR(vertices[vert].texture_coords[0], u) && IS_NEAR(vertices[vert].texture_coords[1], v) && IS_NEAR(vertices[vert].normal[0], i) && IS_NEAR(vertices[vert].normal[1], j) && IS_NEAR(vertices[vert].normal[2], k) ? "true" : "false", vertices[vert].coords[0], IS_NEAR(vertices[vert].coords[0], x) ? "true" : "false", vertices[vert].coords[1], IS_NEAR(vertices[vert].coords[1], y) ? "true" : "false", vertices[vert].coords[2], IS_NEAR(vertices[vert].coords[2], z) ? "true" : "false", vertices[vert].texture_coords[0], IS_NEAR(vertices[vert].texture_coords[0], u) ? "true" : "false", vertices[vert].texture_coords[1], IS_NEAR(vertices[vert].texture_coords[1], v) ? "true" : "false", vertices[vert].normal[0], IS_NEAR(vertices[vert].normal[0], i) ? "true" : "false", vertices[vert].normal[1], IS_NEAR(vertices[vert].normal[1], j) ? "true" : "false", vertices[vert].normal[2], IS_NEAR(vertices[vert].normal[2], k) ? "true" : "false");
 			if (IS_NEAR(vertices[vert].coords[0], x) &&
 			    IS_NEAR(vertices[vert].coords[1], y) &&
 			    IS_NEAR(vertices[vert].coords[2], z) &&
@@ -252,8 +249,6 @@ buffer object_load(const char * filename) {
 
 		if (near >= 0) {
 			indices[indices_size] = near;
-
-			fprintf(stderr, "index: %d\n\n", near);
 		}
 		else {
 			vertices[vertices_size].coords[0] = x;
@@ -268,8 +263,6 @@ buffer object_load(const char * filename) {
 			vertices[vertices_size].normal[2] = k;
 
 			indices[indices_size] = vertices_size;
-
-			fprintf(stderr, "index: %d\n\tx: %f\n\ty: %f\n\tz: %f\n\n\tu: %f\n\tv: %f\n\n\ti: %f\n\tj: %f\n\tk: %f\n\n", vertices_size, x, y, z, u, v, i, j, k);
 
 			vertices_size++;
 		}
