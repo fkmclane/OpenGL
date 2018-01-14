@@ -83,8 +83,8 @@ void world_update() {
 
 void world_matrix() {
 	matrix_create_identity(world);
-	matrix_translate(world, -x, -y, -z);
 	matrix_rotate(world, rot_x, rot_y, rot_z);
+	matrix_translate(world, -x, -y, -z);
 	matrix_translate(world, -cam_x, -cam_y, -cam_z);
 }
 
