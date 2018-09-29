@@ -26,7 +26,7 @@ object_list * objects = & (object_list) {
 			.z_rotation_speed = PI / 4,
 		},
 	},
-	.num = sizeof(objects->list) / sizeof(object *),
+	.num = sizeof(objects->list) / sizeof(object **),
 };
 
 int scene_init() {
