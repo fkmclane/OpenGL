@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +42,10 @@ int object_init(object * current_object) {
 	current_object->uniform_obj_transform = uniform_bind(current_object->program, "obj_transform");
 	current_object->uniform_world_transform = uniform_bind(current_object->program, "world_transform");
 	current_object->uniform_perspective = uniform_bind(current_object->program, "perspective");
-	current_object->uniform_texture = uniform_bind(current_object->program, "texture");
+	current_object->uniform_texture = uniform_bind(current_object->program, "tex");
+
+	// set fragment data location
+	glBindFragDataLocationEXT(current_object->program, 0, "frag_data");
 
 	// check bound variables
 	if (current_object->attribute_coords < 0 || current_object->attribute_texture_coords < 0 || current_object->attribute_normal < 0 || current_object->uniform_obj_transform < 0 || current_object->uniform_world_transform < 0 || current_object->uniform_perspective < 0 || current_object->uniform_texture < 0) {

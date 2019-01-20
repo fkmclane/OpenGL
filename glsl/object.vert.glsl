@@ -1,9 +1,9 @@
-#version 130
+#version 150
 
 // vertex information
-attribute vec3 coords;
-attribute vec2 texture_coords;
-attribute vec3 normal;
+in vec3 coords;
+in vec2 texture_coords;
+in vec3 normal;
 
 // transformations
 uniform mat4 obj_transform;
@@ -11,9 +11,9 @@ uniform mat4 world_transform;
 uniform mat4 perspective;
 
 // shared
-varying vec3 v_coords;
-varying vec2 v_texture_coords;
-varying vec3 v_normal;
+out vec3 v_coords;
+out vec2 v_texture_coords;
+out vec3 v_normal;
 
 void main() {
 	// multiply transformations by coordinates to get position

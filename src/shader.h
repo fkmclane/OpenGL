@@ -5,8 +5,8 @@
 #include <GL/glew.h>
 #else
 #define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
 #endif
 
 GLuint program_load(const char ** shader_filenames, unsigned int shader_num);

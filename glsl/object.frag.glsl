@@ -1,15 +1,18 @@
-#version 130
+#version 150
 
 // texture
-uniform sampler2D texture;
+uniform sampler2D tex;
 
 // shared
-varying vec3 v_coords;
-varying vec2 v_texture_coords;
-varying vec3 v_normal;
+out vec3 v_coords;
+out vec2 v_texture_coords;
+out vec3 v_normal;
+
+// color output
+out vec4 frag_data;
 
 void main() {
 	// update pixel with color from texture corresponding to this object coordinate
-	gl_FragColor.rgb = texture2D(texture, v_texture_coords).rgb + v_normal;
-	gl_FragColor.a = 1;
+	frag_data.rgb = texture(tex, v_texture_coords).rgb + v_normal;
+	frag_data.a = 1;
 }
